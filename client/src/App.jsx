@@ -82,7 +82,10 @@ export default function App() {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <h1>OviUs</h1>
+        <div className="app-brand">
+          <img src="/icon-192.png" alt="OviUs logo" className="app-logo" />
+          <h1>OviUs</h1>
+        </div>
         <div className="month-nav">
           <button type="button" onClick={goToPrevMonth}>
             &laquo; Prev
