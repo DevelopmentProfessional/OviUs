@@ -64,6 +64,8 @@ export default function ClientProfileModal({ clientId, onClose }) {
   const [saving, setSaving] = useState(false);
 
   const [selectedIndicatorId, setSelectedIndicatorId] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [phaseFilter, setPhaseFilter] = useState('all'); // 'all', 'ovulation', 'period'
   const [valueMagnitude, setValueMagnitude] = useState(1);
   const [loggedAt, setLoggedAt] = useState(() => toLocalInputValue(new Date()));
   const [logging, setLogging] = useState(false);
@@ -133,8 +135,16 @@ export default function ClientProfileModal({ clientId, onClose }) {
     );
   }
 
-  const ovulationIndicators = indicators.filter((i) => i.phase_association === 'ovulation');
-  const periodIndicators = indicators.filter((i) => i.phase_association === 'period');
+  const filteredIndicators = indicators.filter((i) => {
+    const matchesPhase = phaseFilter === 'all' || i.phase_association === phaseFilter;
+    const matchesSearch =
+      !searchTerm ||
+      i.metric_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      i.phase_association.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesPhase && matchesSearch;
+  });
+
+  const selectedIndicator = indicators.find((i) => String(i.id) === String(selectedIndicatorId));
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -182,23 +192,89 @@ export default function ClientProfileModal({ clientId, onClose }) {
         <section className="profile-section">
           <h3>Log an Indicator</h3>
           <div className="form-row">
-            <label>Indicator</label>
-            <select value={selectedIndicatorId} onChange={(e) => setSelectedIndicatorId(e.target.value)}>
-              <optgroup label="Ovulation Indicators">
-                {ovulationIndicators.map((i) => (
-                  <option key={i.id} value={i.id}>
-                    {i.metric_name} (weight {i.mathematical_weight})
-                  </option>
-                ))}
-              </optgroup>
-              <optgroup label="Period Indicators">
-                {periodIndicators.map((i) => (
-                  <option key={i.id} value={i.id}>
-                    {i.metric_name} (weight {i.mathematical_weight})
-                  </option>
-                ))}
-              </optgroup>
-            </select>
+            <label>Search & Select Indicator ({indicators.length} available)</label>
+            <div className="indicator-search-box">
+              <div className="indicator-filter-bar">
+                <button
+                  type="button"
+                  className={`filter-btn ${phaseFilter === 'all' ? 'active' : ''}`}
+                  onClick={() => setPhaseFilter('all')}
+                >
+                  All ({indicators.length})
+                </button>
+                <button
+                  type="button"
+                  className={`filter-btn ${phaseFilter === 'ovulation' ? 'active' : ''}`}
+                  onClick={() => setPhaseFilter('ovulation')}
+                >
+                  Ovulation ({indicators.filter((i) => i.phase_association === 'ovulation').length})
+                </button>
+                <button
+                  type="button"
+                  className={`filter-btn ${phaseFilter === 'period' ? 'active' : ''}`}
+                  onClick={() => setPhaseFilter('period')}
+                >
+                  Period ({indicators.filter((i) => i.phase_association === 'period').length})
+                </button>
+              </div>
+
+              <input
+                type="text"
+                className="indicator-search-input"
+                placeholder="Type to filter symptoms, foods, moods, clothing, tests..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+
+              <div className="indicator-results-container">
+                <div className="indicator-results-header">
+                  Showing {filteredIndicators.length} matching indicators (click one to select)
+                </div>
+                <ul className="indicator-results-list">
+                  {filteredIndicators.slice(0, 50).map((ind) => (
+                    <li
+                      key={ind.id}
+                      className={`indicator-result-item ${
+                        String(ind.id) === String(selectedIndicatorId) ? 'selected' : ''
+                      }`}
+                      onClick={() => setSelectedIndicatorId(String(ind.id))}
+                    >
+                      <span className="indicator-item-name">{ind.metric_name}</span>
+                      <div className="indicator-item-meta">
+                        <span className={`log-phase-tag log-phase-${ind.phase_association}`}>
+                          {ind.phase_association}
+                        </span>
+                        <span className="indicator-weight-badge">Weight {ind.mathematical_weight}</span>
+                      </div>
+                    </li>
+                  ))}
+                  {filteredIndicators.length === 0 && (
+                    <li className="indicator-result-item">No matching indicators found. Try another search term.</li>
+                  )}
+                  {filteredIndicators.length > 50 && (
+                    <li className="indicator-results-header">
+                      + {filteredIndicators.length - 50} more items. Refine your search above to narrow down.
+                    </li>
+                  )}
+                </ul>
+              </div>
+
+              {selectedIndicator && (
+                <div className="indicator-selected-summary">
+                  <div>
+                    <strong>Selected:</strong> {selectedIndicator.metric_name}
+                  </div>
+                  <div>
+                    <span className={`log-phase-tag log-phase-${selectedIndicator.phase_association}`}>
+                      {selectedIndicator.phase_association}
+                    </span>
+                    <span className="indicator-weight-badge">
+                      Calculation Weight: {selectedIndicator.mathematical_weight}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
           <div className="form-row">
             <label>Magnitude</label>

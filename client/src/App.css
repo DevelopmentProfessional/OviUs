@@ -343,3 +343,103 @@ button:hover {
   background: #cfd7f2;
   color: #2c3a7a;
 }
+
+/* Searchable Indicator Picker */
+.indicator-search-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.indicator-filter-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  font-size: 0.78rem;
+  padding: 4px 8px;
+  background: #fff;
+  border: 1px solid #d8b4d1;
+  color: #6b2358;
+}
+
+.filter-btn.active {
+  background: #a5387a;
+  color: #fff;
+  border-color: #a5387a;
+}
+
+.indicator-search-input {
+  width: 100%;
+}
+
+.indicator-results-container {
+  border: 1px solid #d8b4d1;
+  border-radius: 6px;
+  background: #fff;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.indicator-results-header {
+  font-size: 0.75rem;
+  color: #8a7d90;
+  padding: 6px 10px;
+  background: #fbf7fb;
+  border-bottom: 1px solid #f1dced;
+}
+
+.indicator-results-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.indicator-result-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #faf0f7;
+  transition: background 0.15s ease;
+}
+
+.indicator-result-item:hover,
+.indicator-result-item.selected {
+  background: #f6e2f0;
+}
+
+.indicator-item-name {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #2c2333;
+}
+
+.indicator-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.indicator-weight-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background: #f1dced;
+  color: #6b2358;
+}
+
+.indicator-selected-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fdf5fb;
+  border: 1px solid #e8c6e2;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-top: 4px;
+}
