@@ -83,7 +83,7 @@ export default function App() {
     <div className="app-shell">
       <header className="app-header">
         <div className="app-brand">
-          <img src="/icon-192.png" alt="OviUs logo" className="app-logo" />
+          <img src="/logo.png" alt="OviUs logo" className="app-logo" />
           <h1>OviUs</h1>
         </div>
         <div className="month-nav">
