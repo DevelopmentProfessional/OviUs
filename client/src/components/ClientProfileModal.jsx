@@ -61,6 +61,7 @@ export default function ClientProfileModal({ clientId, onClose }) {
   const [favoriteColor, setFavoriteColor] = useState('');
   const [likes, setLikes] = useState([]);
   const [dislikes, setDislikes] = useState([]);
+  const [phrases, setPhrases] = useState([]);
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [traitsAccordionOpen, setTraitsAccordionOpen] = useState(false);
@@ -96,6 +97,7 @@ export default function ClientProfileModal({ clientId, onClose }) {
     setFavoriteColor(clientData.favorite_color || '');
     setLikes(clientData.likes || []);
     setDislikes(clientData.dislikes || []);
+    setPhrases(clientData.phrases || []);
     setNotes(clientData.notes || '');
     if (indicatorData.length > 0 && !selectedIndicatorId) {
       setSelectedIndicatorId(String(indicatorData[0].id));
@@ -115,6 +117,7 @@ export default function ClientProfileModal({ clientId, onClose }) {
         favorite_color: favoriteColor,
         likes,
         dislikes,
+        phrases,
         notes,
         avatar_url: avatarUrl,
       });
@@ -357,6 +360,7 @@ export default function ClientProfileModal({ clientId, onClose }) {
                 </div>
                 <TagListEditor label="Likes" values={likes} onChange={setLikes} />
                 <TagListEditor label="Dislikes" values={dislikes} onChange={setDislikes} />
+                <TagListEditor label="Phrases" values={phrases} onChange={setPhrases} />
                 <div className="form-row">
                   <label>Notes / Personality Traits</label>
                   <textarea
@@ -377,10 +381,11 @@ export default function ClientProfileModal({ clientId, onClose }) {
                 )}
                 {likes.length > 0 && <span className="summary-pill">{likes.length} Likes</span>}
                 {dislikes.length > 0 && <span className="summary-pill">{dislikes.length} Dislikes</span>}
+                {phrases.length > 0 && <span className="summary-pill">{phrases.length} Phrases</span>}
                 {notes ? (
                   <span className="summary-pill">Notes added</span>
                 ) : (
-                  <span className="summary-hint">Tap to add color, likes, traits & photo</span>
+                  <span className="summary-hint">Tap to add color, likes, dislikes, phrases, traits & photo</span>
                 )}
               </div>
             )}

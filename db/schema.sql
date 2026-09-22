@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS client_profiles (
     favorite_color       VARCHAR(50),
     likes                TEXT[] DEFAULT '{}',
     dislikes             TEXT[] DEFAULT '{}',
+    phrases              TEXT[] DEFAULT '{}',
     notes                TEXT,
     avatar_url           TEXT
 );
