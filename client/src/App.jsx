@@ -86,33 +86,39 @@ export default function App() {
           <img src="/logo.png" alt="OviUs logo" className="app-logo" />
           <h1>OviUs</h1>
         </div>
-        <div className="month-nav">
-          <button type="button" onClick={goToPrevMonth}>
-            &laquo; Prev
-          </button>
+        <div className="month-display">
           <span className="month-label">
             {MONTH_NAMES[monthIndex]} {year}
           </span>
-          <button type="button" onClick={goToNextMonth}>
-            Next &raquo;
-          </button>
         </div>
-        <button type="button" className="add-client-button" onClick={() => setAddClientOpen(true)}>
-          + Add Client
-        </button>
       </header>
 
       {error && <p className="form-error">{error}</p>}
       {loading ? (
         <p className="loading-text">Loading calendar...</p>
       ) : (
-        <CalendarView
-          year={year}
-          monthIndexZeroBased={monthIndex}
-          calendarDays={calendarDays}
-          onDayEntriesClick={handleDayEntriesClick}
-        />
+        <main className="calendar-container">
+          <CalendarView
+            year={year}
+            monthIndexZeroBased={monthIndex}
+            calendarDays={calendarDays}
+            onDayEntriesClick={handleDayEntriesClick}
+          />
+        </main>
       )}
+
+      {/* Floating Bottom Navigation / Action Bar */}
+      <footer className="bottom-bar">
+        <button type="button" className="btn-nav" onClick={goToPrevMonth}>
+          &laquo; Prev
+        </button>
+        <button type="button" className="add-client-button" onClick={() => setAddClientOpen(true)}>
+          + Add Client
+        </button>
+        <button type="button" className="btn-nav" onClick={goToNextMonth}>
+          Next &raquo;
+        </button>
+      </footer>
 
       {groupModal && (
         <GroupModal

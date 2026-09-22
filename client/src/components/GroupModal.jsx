@@ -5,26 +5,34 @@ export default function GroupModal({ dateKey, entries, onSelectClient, onClose }
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-panel modal-panel-fullscreen" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Ovulating on {dateKey}</h2>
-          <button type="button" className="modal-close" onClick={onClose}>
+          <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
             &times;
           </button>
         </div>
-        <ul className="group-modal-list">
-          {sorted.map((entry) => (
-            <li key={entry.clientId}>
-              <button
-                type="button"
-                className="group-modal-name"
-                onClick={() => onSelectClient(entry.clientId)}
-              >
-                {entry.name}
-              </button>
-            </li>
-          ))}
-        </ul>
+        <div className="modal-content">
+          <p className="modal-hint">Select a client below to view and edit their profile and cycle history:</p>
+          <ul className="group-modal-list">
+            {sorted.map((entry) => (
+              <li key={entry.clientId}>
+                <button
+                  type="button"
+                  className="group-modal-name"
+                  onClick={() => onSelectClient(entry.clientId)}
+                >
+                  {entry.name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="modal-footer">
+          <button type="button" className="btn-secondary" onClick={onClose}>
+            Close
+          </button>
+        </div>
       </div>
     </div>
   );

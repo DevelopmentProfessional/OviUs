@@ -3,10 +3,6 @@ import { api } from '../api';
 
 export default function AddClientModal({ onCreated, onClose }) {
   const [name, setName] = useState('');
-  const [favoriteColor, setFavoriteColor] = useState('');
-  const [likesText, setLikesText] = useState('');
-  const [dislikesText, setDislikesText] = useState('');
-  const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -19,14 +15,8 @@ export default function AddClientModal({ onCreated, onClose }) {
     setSaving(true);
     setError('');
     try {
-      const likes = likesText.split(',').map((s) => s.trim()).filter(Boolean);
-      const dislikes = dislikesText.split(',').map((s) => s.trim()).filter(Boolean);
       const created = await api.createClient({
         name: name.trim(),
-        favorite_color: favoriteColor,
-        likes,
-        dislikes,
-        notes,
       });
       onCreated(created);
     } catch (err) {
@@ -38,41 +28,42 @@ export default function AddClientModal({ onCreated, onClose }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-panel modal-panel-fullscreen" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Add Client</h2>
-          <button type="button" className="modal-close" onClick={onClose}>
+          <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
             &times;
           </button>
         </div>
 
-        {error && <p className="form-error">{error}</p>}
+        <div className="modal-content">
+          {error && <p className="form-error">{error}</p>}
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-row">
-            <label>Name</label>
-            <input value={name} onChange={(e) => setName(e.target.value)} autoFocus />
-          </div>
-          <div className="form-row">
-            <label>Favorite Color</label>
-            <input value={favoriteColor} onChange={(e) => setFavoriteColor(e.target.value)} />
-          </div>
-          <div className="form-row">
-            <label>Likes (comma separated)</label>
-            <input value={likesText} onChange={(e) => setLikesText(e.target.value)} />
-          </div>
-          <div className="form-row">
-            <label>Dislikes (comma separated)</label>
-            <input value={dislikesText} onChange={(e) => setDislikesText(e.target.value)} />
-          </div>
-          <div className="form-row">
-            <label>Notes / Personality Traits</label>
-            <textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
-          </div>
-          <button type="submit" disabled={saving}>
-            {saving ? 'Adding...' : 'Add Client'}
+          <form id="add-client-form" onSubmit={handleSubmit}>
+            <div className="form-row">
+              <label htmlFor="client-name">Client Name</label>
+              <input
+                id="client-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter client name..."
+                autoFocus
+              />
+            </div>
+            <p className="modal-hint">
+              You can add favorite colors, likes, dislikes, personality traits, and indicator logs later from the client profile.
+            </p>
+          </form>
+        </div>
+
+        <div className="modal-footer">
+          <button type="button" className="btn-secondary" onClick={onClose}>
+            Close
           </button>
-        </form>
+          <button type="submit" form="add-client-form" className="btn-primary" disabled={saving}>
+            {saving ? 'Adding...' : 'Save Client'}
+          </button>
+        </div>
       </div>
     </div>
   );
