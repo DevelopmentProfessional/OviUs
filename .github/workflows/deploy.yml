@@ -2,32 +2,43 @@ name: Deploy to EC2
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-ovius-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Pull latest code
-        run: |
-          cd /home/ec2-user/OviUs
-          git fetch origin main
-          git reset --hard origin/main
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST || '107.23.130.42' }}
+          username: ${{ secrets.EC2_USER || 'ec2-user' }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -e
+            cd /home/ec2-user/OviUs
+            git fetch origin main
+            git reset --hard origin/main
 
-      - name: Install dependencies & Build
-        run: |
-          cd /home/ec2-user/OviUs/server
-          npm install
-          cd /home/ec2-user/OviUs/client
-          npm install
-          npm run build
+            cd /home/ec2-user/OviUs/server
+            npm install --omit=dev
 
-      - name: Restart Backend & Reload Nginx
-        run: |
-          cd /home/ec2-user/OviUs
-          pm2 restart ovius-api || pm2 start server/src/index.js --name ovius-api
-          pm2 save
-          sudo setsebool -P httpd_read_user_content 1 || true
-          sudo chmod 755 /home/ec2-user
-          sudo chmod -R 755 /home/ec2-user/OviUs/client/dist
-          sudo systemctl reload nginx
+            cd /home/ec2-user/OviUs/client
+            npm install
+            npm run build
+
+            cd /home/ec2-user/OviUs
+            pm2 restart ovius-api || pm2 start server/src/index.js --name ovius-api
+            pm2 save
+
+            sudo setsebool -P httpd_read_user_content 1 || true
+            sudo chmod 755 /home/ec2-user
+            sudo chmod -R 755 /home/ec2-user/OviUs/client/dist
+            sudo systemctl reload nginx
