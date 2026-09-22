@@ -19,6 +19,8 @@ export default function App() {
   const [year, setYear] = useState(today.getUTCFullYear());
   const [monthIndex, setMonthIndex] = useState(today.getUTCMonth());
   const [calendarDays, setCalendarDays] = useState({});
+  const [clients, setClients] = useState([]);
+  const [clientSearch, setClientSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -39,9 +41,19 @@ export default function App() {
     }
   }, [year, monthIndex]);
 
+  const loadClients = useCallback(async () => {
+    try {
+      const list = await api.getClients();
+      setClients(list || []);
+    } catch (err) {
+      console.error('Failed to load clients:', err);
+    }
+  }, []);
+
   useEffect(() => {
     loadCalendar();
-  }, [loadCalendar]);
+    loadClients();
+  }, [loadCalendar, loadClients]);
 
   const goToPrevMonth = () => {
     if (monthIndex === 0) {
@@ -77,7 +89,12 @@ export default function App() {
   const handleClientCreated = () => {
     setAddClientOpen(false);
     loadCalendar();
+    loadClients();
   };
+
+  const filteredClients = clients.filter((c) =>
+    c.name.toLowerCase().includes(clientSearch.toLowerCase())
+  );
 
   return (
     <div className="app-shell">
@@ -107,6 +124,60 @@ export default function App() {
         </main>
       )}
 
+      {/* Selectable Clients List Below Calendar */}
+      <section className="clients-section">
+        <div className="clients-section-header">
+          <h2>Clients ({clients.length})</h2>
+          {clients.length > 4 && (
+            <input
+              type="text"
+              placeholder="Search clients..."
+              value={clientSearch}
+              onChange={(e) => setClientSearch(e.target.value)}
+              className="client-search-input"
+            />
+          )}
+        </div>
+
+        <div className="clients-grid">
+          {filteredClients.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              className="client-card"
+              onClick={() => setProfileClientId(c.id)}
+            >
+              {c.avatar_url ? (
+                <img src={c.avatar_url} alt={c.name} className="client-avatar-thumb" />
+              ) : (
+                <div
+                  className="client-avatar-fallback-thumb"
+                  style={{ backgroundColor: c.favorite_color || '#a5387a' }}
+                >
+                  {c.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="client-card-details">
+                <span className="client-card-name">{c.name}</span>
+                {c.favorite_color && (
+                  <span className="client-card-color">
+                    <span className="color-swatch-sm" style={{ backgroundColor: c.favorite_color }} />
+                    {c.favorite_color}
+                  </span>
+                )}
+              </div>
+            </button>
+          ))}
+          {filteredClients.length === 0 && (
+            <p className="no-clients-text">
+              {clients.length === 0
+                ? "No clients added yet. Tap '+ Add Client' below to create one!"
+                : 'No clients match your search.'}
+            </p>
+          )}
+        </div>
+      </section>
+
       {/* Floating Bottom Navigation / Action Bar */}
       <footer className="bottom-bar">
         <button type="button" className="btn-nav" onClick={goToPrevMonth}>
@@ -135,6 +206,7 @@ export default function App() {
           onClose={() => {
             setProfileClientId(null);
             loadCalendar();
+            loadClients();
           }}
         />
       )}

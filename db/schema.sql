@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS client_profiles (
     favorite_color       VARCHAR(50),
     likes                TEXT[] DEFAULT '{}',
     dislikes             TEXT[] DEFAULT '{}',
-    notes                TEXT
+    notes                TEXT,
+    avatar_url           TEXT
 );
 
 -- Phase_Association: 'ovulation' or 'period'

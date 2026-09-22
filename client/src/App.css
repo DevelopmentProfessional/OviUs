@@ -629,3 +629,355 @@ body {
   padding: 8px 10px;
   margin-top: 4px;
 }
+
+/* =========================================================
+   Clients List Section (Under the Calendar)
+========================================================= */
+.clients-section {
+  margin-top: 24px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #f1dced;
+}
+
+.clients-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.clients-section-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #6b2358;
+}
+
+.client-search-input {
+  max-width: 220px;
+  padding: 6px 10px;
+  border: 1px solid #d8b4d1;
+  border-radius: 6px;
+  font-size: 0.88rem;
+}
+
+.clients-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.client-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #fdf7fc;
+  border: 1px solid #ebd3e6;
+  border-radius: 10px;
+  text-align: left;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.client-card:hover {
+  background: #f7e6f3;
+  border-color: #a5387a;
+  transform: translateY(-1px);
+}
+
+.client-avatar-thumb {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.client-avatar-fallback-thumb {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.client-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.client-card-name {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: #2c2333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.client-card-color {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  color: #7b6d82;
+}
+
+.color-swatch-sm {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.no-clients-text {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #8a7d90;
+  font-size: 0.9rem;
+  padding: 16px;
+  margin: 0;
+}
+
+/* =========================================================
+   Modal Header Avatar & Accordion & Magnitude Controls
+========================================================= */
+.modal-header-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-avatar-preview {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #a5387a;
+}
+
+.modal-avatar-fallback {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Accordion Component */
+.accordion-section {
+  padding: 0 0 12px !important;
+}
+
+.accordion-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: #fbf3f9;
+  border: 1px solid #ebd3e6;
+  border-radius: 8px;
+  text-align: left;
+  margin-bottom: 8px;
+}
+
+.accordion-toggle:hover {
+  background: #f6e6f2;
+}
+
+.accordion-toggle-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.accordion-arrow {
+  color: #a5387a;
+  font-size: 0.85rem;
+}
+
+.accordion-title {
+  font-weight: 600;
+  color: #6b2358;
+  font-size: 0.95rem;
+}
+
+.accordion-badge {
+  font-size: 0.75rem;
+  color: #8a7d90;
+}
+
+.accordion-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.summary-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: #f4e3f0;
+  color: #6b2358;
+}
+
+.summary-hint {
+  font-size: 0.8rem;
+  color: #a5387a;
+  font-style: italic;
+}
+
+.accordion-body {
+  padding: 12px 14px;
+  background: #fdfafc;
+  border: 1px solid #f1dced;
+  border-radius: 8px;
+  margin-top: 4px;
+}
+
+/* Avatar Upload inside Profile */
+.image-upload-row {
+  margin-bottom: 14px;
+}
+
+.avatar-control-area {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 8px 0;
+}
+
+.avatar-large-preview {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #ebd3e6;
+}
+
+.avatar-large-fallback {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.btn-file-label {
+  display: inline-block;
+  cursor: pointer;
+  background: #a5387a;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.btn-file-label:hover {
+  background: #8c2d67;
+}
+
+.btn-remove-avatar {
+  background: transparent;
+  color: #b3261e;
+  border: 1px solid #f2c0bf;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+}
+
+.btn-remove-avatar:hover {
+  background: #fde8e8;
+}
+
+.avatar-url-input {
+  font-size: 0.82rem;
+  margin-top: 4px;
+}
+
+.color-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Magnitude / Intensity Low & High Toggle */
+.magnitude-toggle-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.magnitude-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 14px;
+  border: 2px solid #ebd3e6;
+  background: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.magnitude-btn:hover {
+  border-color: #a5387a;
+  background: #fbf5fa;
+}
+
+.magnitude-btn.active {
+  border-color: #a5387a;
+  background: #f6e0f0;
+  box-shadow: 0 0 0 1px #a5387a;
+}
+
+.mag-title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #6b2358;
+}
+
+.mag-sub {
+  font-size: 0.76rem;
+  color: #7b6d82;
+  margin-top: 2px;
+}

@@ -23,7 +23,10 @@ router.get('/', async (req, res, next) => {
         const monthEnd = new Date(Date.UTC(year, month, 0, 23, 59, 59));
 
         const clientsResult = await pool.query(
-            `SELECT id, name, created_at FROM clients ORDER BY name ASC`
+            `SELECT c.id, c.name, c.created_at, p.favorite_color, p.avatar_url
+             FROM clients c
+             LEFT JOIN client_profiles p ON p.client_id = c.id
+             ORDER BY c.name ASC`
         );
         const logsResult = await pool.query(
             `SELECT l.client_id, l.logged_at, l.value_magnitude,
@@ -56,6 +59,8 @@ router.get('/', async (req, res, next) => {
                 milestonesByDate.get(key).push({
                     clientId: clientRow.id,
                     name: clientRow.name,
+                    favoriteColor: clientRow.favorite_color,
+                    avatarUrl: clientRow.avatar_url,
                     cycleLengthDays,
                 });
             }

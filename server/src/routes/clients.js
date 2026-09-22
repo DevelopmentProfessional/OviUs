@@ -3,12 +3,16 @@ const { pool } = require('../db/pool');
 
 const router = express.Router();
 
+// Auto-migrate avatar_url column if not present
+pool.query('ALTER TABLE client_profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT;')
+    .catch((err) => console.error('Migration warning (avatar_url):', err.message));
+
 // GET /api/clients - list all clients with their profile, alphabetically by name.
 router.get('/', async (req, res, next) => {
     try {
         const { rows } = await pool.query(
             `SELECT c.id, c.name, c.created_at,
-                    p.favorite_color, p.likes, p.dislikes, p.notes
+                    p.favorite_color, p.likes, p.dislikes, p.notes, p.avatar_url
              FROM clients c
              LEFT JOIN client_profiles p ON p.client_id = c.id
              ORDER BY c.name ASC`
@@ -24,7 +28,7 @@ router.get('/:id', async (req, res, next) => {
     try {
         const { rows } = await pool.query(
             `SELECT c.id, c.name, c.created_at,
-                    p.favorite_color, p.likes, p.dislikes, p.notes
+                    p.favorite_color, p.likes, p.dislikes, p.notes, p.avatar_url
              FROM clients c
              LEFT JOIN client_profiles p ON p.client_id = c.id
              WHERE c.id = $1`,
@@ -39,7 +43,7 @@ router.get('/:id', async (req, res, next) => {
 
 // POST /api/clients - create client + initial profile. Creation date becomes Ovulation Day 0.
 router.post('/', async (req, res, next) => {
-    const { name, favorite_color, likes = [], dislikes = [], notes = '' } = req.body;
+    const { name, favorite_color, likes = [], dislikes = [], notes = '', avatar_url = null } = req.body;
     if (!name || !name.trim()) {
         return res.status(400).json({ error: 'Client name is required' });
     }
@@ -53,9 +57,9 @@ router.post('/', async (req, res, next) => {
         );
         const newClient = rows[0];
         await client.query(
-            `INSERT INTO client_profiles (client_id, favorite_color, likes, dislikes, notes)
-             VALUES ($1, $2, $3, $4, $5)`,
-            [newClient.id, favorite_color || null, likes, dislikes, notes || '']
+            `INSERT INTO client_profiles (client_id, favorite_color, likes, dislikes, notes, avatar_url)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+            [newClient.id, favorite_color || null, likes, dislikes, notes || '', avatar_url || null]
         );
         await client.query('COMMIT');
         res.status(201).json({
@@ -64,6 +68,7 @@ router.post('/', async (req, res, next) => {
             likes,
             dislikes,
             notes: notes || '',
+            avatar_url: avatar_url || null,
         });
     } catch (err) {
         await client.query('ROLLBACK');
@@ -75,14 +80,14 @@ router.post('/', async (req, res, next) => {
 
 // PUT /api/clients/:id/profile - update qualitative profile fields.
 router.put('/:id/profile', async (req, res, next) => {
-    const { favorite_color, likes = [], dislikes = [], notes = '' } = req.body;
+    const { favorite_color, likes = [], dislikes = [], notes = '', avatar_url = null } = req.body;
     try {
         const { rows } = await pool.query(
             `UPDATE client_profiles
-             SET favorite_color = $2, likes = $3, dislikes = $4, notes = $5
+             SET favorite_color = $2, likes = $3, dislikes = $4, notes = $5, avatar_url = $6
              WHERE client_id = $1
-             RETURNING client_id, favorite_color, likes, dislikes, notes`,
-            [req.params.id, favorite_color || null, likes, dislikes, notes || '']
+             RETURNING client_id, favorite_color, likes, dislikes, notes, avatar_url`,
+            [req.params.id, favorite_color || null, likes, dislikes, notes || '', avatar_url || null]
         );
         if (rows.length === 0) return res.status(404).json({ error: 'Client profile not found' });
         res.json(rows[0]);
