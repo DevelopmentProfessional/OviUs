@@ -1,0 +1,33 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Pull latest code
+        run: |
+          cd /home/ec2-user/OviUs
+          git fetch origin main
+          git reset --hard origin/main
+
+      - name: Install dependencies & Build
+        run: |
+          cd /home/ec2-user/OviUs/server
+          npm install
+          cd /home/ec2-user/OviUs/client
+          npm install
+          npm run build
+
+      - name: Restart Backend & Reload Nginx
+        run: |
+          cd /home/ec2-user/OviUs
+          pm2 restart ovius-api || pm2 start server/src/index.js --name ovius-api
+          pm2 save
+          sudo setsebool -P httpd_read_user_content 1 || true
+          sudo chmod 755 /home/ec2-user
+          sudo chmod -R 755 /home/ec2-user/OviUs/client/dist
+          sudo systemctl reload nginx
