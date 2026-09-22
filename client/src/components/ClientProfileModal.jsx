@@ -413,91 +413,7 @@ export default function ClientProfileModal({ clientId, onClose }) {
             <button type="button" className="btn-primary" onClick={handleLogIndicator} disabled={logging}>
               {logging ? 'Logging...' : '+ Add Indicator Log'}
             </button>
-          </section>
-
-          <section className="profile-section">
-            <h3>Recent Indicator History</h3>
-            <ul className="log-history-list">
-              {logs.slice(0, 10).map((log) => (
-                <li key={log.id}>
-                  <span className={`log-phase-tag log-phase-${log.phase_association}`}>
-                    {log.phase_association}
-                  </span>{' '}
-                  {log.metric_name} &middot; {new Date(log.logged_at).toLocaleString()} &middot; magnitude{' '}
-                  {log.value_magnitude}
-                </li>
-              ))}
-              {logs.length === 0 && <li>No indicators logged yet.</li>}
-            </ul>
-          </section>
-        </div>
-
-        <div className="modal-footer">
-          <button type="button" className="btn-secondary" onClick={onClose}>
-            Close
-          </button>
-          <button type="button" className="btn-primary" onClick={handleSaveProfile} disabled={saving}>
-            {saving ? 'Saving...' : 'Save Profile'}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-                    >
-                      <span className="indicator-item-name">{ind.metric_name}</span>
-                      <div className="indicator-item-meta">
-                        <span className={`log-phase-tag log-phase-${ind.phase_association}`}>
-                          {ind.phase_association}
-                        </span>
-                        <span className="indicator-weight-badge">Weight {ind.mathematical_weight}</span>
-                      </div>
-                    </li>
-                  ))}
-                  {filteredIndicators.length === 0 && (
-                    <li className="indicator-result-item">No matching indicators found. Try another search term.</li>
-                  )}
-                  {filteredIndicators.length > 50 && (
-                    <li className="indicator-results-header">
-                      + {filteredIndicators.length - 50} more items. Refine your search above to narrow down.
-                    </li>
-                  )}
-                </ul>
-              </div>
-
-              {selectedIndicator && (
-                <div className="indicator-selected-summary">
-                  <div>
-                    <strong>Selected:</strong> {selectedIndicator.metric_name}
-                  </div>
-                  <div>
-                    <span className={`log-phase-tag log-phase-${selectedIndicator.phase_association}`}>
-                      {selectedIndicator.phase_association}
-                    </span>
-                    <span className="indicator-weight-badge">
-                      Calculation Weight: {selectedIndicator.mathematical_weight}
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
-          <div className="form-row">
-            <label>Magnitude</label>
-            <input
-              type="number"
-              min="0.1"
-              step="0.1"
-              value={valueMagnitude}
-              onChange={(e) => setValueMagnitude(e.target.value)}
-            />
-          </div>
-          <div className="form-row">
-            <label>Observed At</label>
-            <input type="datetime-local" value={loggedAt} onChange={(e) => setLoggedAt(e.target.value)} />
-          </div>
-          <button type="button" onClick={handleLogIndicator} disabled={logging}>
-            {logging ? 'Logging...' : 'Log Indicator'}
-          </button>
         </section>
 
         <section className="profile-section">
@@ -516,6 +432,16 @@ export default function ClientProfileModal({ clientId, onClose }) {
           </ul>
         </section>
       </div>
+
+      <div className="modal-footer">
+        <button type="button" className="btn-secondary" onClick={onClose}>
+          Close
+        </button>
+        <button type="button" className="btn-primary" onClick={handleSaveProfile} disabled={saving}>
+          {saving ? 'Saving...' : 'Save Profile'}
+        </button>
+      </div>
     </div>
-  );
+  </div>
+);
 }
