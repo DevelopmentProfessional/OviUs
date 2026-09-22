@@ -13,6 +13,8 @@ async function request(path, options = {}) {
   return res.json();
 }
 
+let cachedIndicators = null;
+
 export const api = {
   getClients: () => request('/clients'),
   getClient: (id) => request(`/clients/${id}`),
@@ -22,7 +24,32 @@ export const api = {
     request(`/clients/${id}/profile`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteClient: (id) => request(`/clients/${id}`, { method: 'DELETE' }),
 
-  getIndicators: () => request('/indicators'),
+  getIndicators: async (forceRefresh = false) => {
+    if (!cachedIndicators || forceRefresh) {
+      const data = await request('/indicators');
+      cachedIndicators = (data || []).slice().sort((a, b) =>
+        a.metric_name.localeCompare(b.metric_name)
+      );
+    }
+    return cachedIndicators;
+  },
+
+  createIndicator: async (data) => {
+    const created = await request('/indicators', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    if (cachedIndicators) {
+      const existingIdx = cachedIndicators.findIndex((i) => i.id === created.id);
+      if (existingIdx >= 0) {
+        cachedIndicators[existingIdx] = created;
+      } else {
+        cachedIndicators.push(created);
+      }
+      cachedIndicators.sort((a, b) => a.metric_name.localeCompare(b.metric_name));
+    }
+    return created;
+  },
 
   getLogs: (clientId) => request(`/clients/${clientId}/logs`),
   createLog: (clientId, data) =>

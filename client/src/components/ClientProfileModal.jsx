@@ -71,6 +71,14 @@ export default function ClientProfileModal({ clientId, onClose }) {
   const [logging, setLogging] = useState(false);
   const [error, setError] = useState('');
 
+  // Add new indicator state
+  const [showAddIndicator, setShowAddIndicator] = useState(false);
+  const [newMetricName, setNewMetricName] = useState('');
+  const [newPhase, setNewPhase] = useState('ovulation');
+  const [newWeight, setNewWeight] = useState(5.0);
+  const [creatingIndicator, setCreatingIndicator] = useState(false);
+  const [indicatorError, setIndicatorError] = useState('');
+
   const refresh = async () => {
     const [clientData, indicatorData, logData, predictionData] = await Promise.all([
       api.getClient(clientId),
@@ -86,7 +94,9 @@ export default function ClientProfileModal({ clientId, onClose }) {
     setLikes(clientData.likes || []);
     setDislikes(clientData.dislikes || []);
     setNotes(clientData.notes || '');
-    if (indicatorData.length > 0) setSelectedIndicatorId(String(indicatorData[0].id));
+    if (indicatorData.length > 0 && !selectedIndicatorId) {
+      setSelectedIndicatorId(String(indicatorData[0].id));
+    }
   };
 
   useEffect(() => {
@@ -104,6 +114,38 @@ export default function ClientProfileModal({ clientId, onClose }) {
       setError(err.message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleCreateIndicator = async (e) => {
+    e?.preventDefault();
+    if (!newMetricName.trim()) {
+      setIndicatorError('Indicator name is required.');
+      return;
+    }
+    const weightNum = parseFloat(newWeight);
+    if (isNaN(weightNum) || weightNum <= 0) {
+      setIndicatorError('Weight must be a positive number.');
+      return;
+    }
+    setCreatingIndicator(true);
+    setIndicatorError('');
+    try {
+      const created = await api.createIndicator({
+        metric_name: newMetricName.trim(),
+        phase_association: newPhase,
+        mathematical_weight: weightNum,
+      });
+      const updatedList = await api.getIndicators();
+      setIndicators(updatedList);
+      setSelectedIndicatorId(String(created.id));
+      setNewMetricName('');
+      setNewWeight(5.0);
+      setShowAddIndicator(false);
+    } catch (err) {
+      setIndicatorError(err.message);
+    } finally {
+      setCreatingIndicator(false);
     }
   };
 
@@ -201,94 +243,161 @@ export default function ClientProfileModal({ clientId, onClose }) {
           </section>
 
           <section className="profile-section">
+          <div className="section-header-row">
             <h3>Log an Indicator</h3>
-            <div className="form-row">
-              <label>Search & Select Indicator ({indicators.length} available)</label>
-              <div className="indicator-search-box">
-                <div className="indicator-filter-bar">
-                  <button
-                    type="button"
-                    className={`filter-btn ${phaseFilter === 'all' ? 'active' : ''}`}
-                    onClick={() => setPhaseFilter('all')}
-                  >
-                    All ({indicators.length})
-                  </button>
-                  <button
-                    type="button"
-                    className={`filter-btn ${phaseFilter === 'ovulation' ? 'active' : ''}`}
-                    onClick={() => setPhaseFilter('ovulation')}
-                  >
-                    Ovulation ({indicators.filter((i) => i.phase_association === 'ovulation').length})
-                  </button>
-                  <button
-                    type="button"
-                    className={`filter-btn ${phaseFilter === 'period' ? 'active' : ''}`}
-                    onClick={() => setPhaseFilter('period')}
-                  >
-                    Period ({indicators.filter((i) => i.phase_association === 'period').length})
-                  </button>
-                </div>
+            <button
+              type="button"
+              className="btn-toggle-create"
+              onClick={() => setShowAddIndicator(!showAddIndicator)}
+            >
+              {showAddIndicator ? '− Cancel Custom Sign' : '+ Add New Custom Sign'}
+            </button>
+          </div>
 
+          {showAddIndicator && (
+            <div className="new-indicator-card">
+              <h4>Create New Indicator / Sign</h4>
+              {indicatorError && <p className="form-error">{indicatorError}</p>}
+              <form onSubmit={handleCreateIndicator} className="new-indicator-form">
+                <div className="form-row">
+                  <label>Sign / Symptom Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Salty Food Craving, High Focus, Deep Sleep..."
+                    value={newMetricName}
+                    onChange={(e) => setNewMetricName(e.target.value)}
+                    autoFocus
+                  />
+                </div>
+                <div className="form-row-grid">
+                  <div className="form-row">
+                    <label>Indicates Phase</label>
+                    <select value={newPhase} onChange={(e) => setNewPhase(e.target.value)}>
+                      <option value="ovulation">Ovulation Sign</option>
+                      <option value="period">Period / Menstrual Sign</option>
+                    </select>
+                  </div>
+                  <div className="form-row">
+                    <label>Weight (Number Indicator 1 - 10)</label>
+                    <input
+                      type="number"
+                      min="0.5"
+                      max="10"
+                      step="0.5"
+                      value={newWeight}
+                      onChange={(e) => setNewWeight(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <button type="submit" className="btn-primary" disabled={creatingIndicator}>
+                  {creatingIndicator ? 'Creating...' : 'Save & Select Sign'}
+                </button>
+              </form>
+            </div>
+          )}
+
+          <div className="form-row">
+            <label>Search & Select Sign ({indicators.length} signs cached)</label>
+            <div className="indicator-search-box">
+              <div className="indicator-filter-bar">
+                <button
+                  type="button"
+                  className={`filter-btn ${phaseFilter === 'all' ? 'active' : ''}`}
+                  onClick={() => setPhaseFilter('all')}
+                >
+                  All ({indicators.length})
+                </button>
+                <button
+                  type="button"
+                  className={`filter-btn ${phaseFilter === 'ovulation' ? 'active' : ''}`}
+                  onClick={() => setPhaseFilter('ovulation')}
+                >
+                  Ovulation ({indicators.filter((i) => i.phase_association === 'ovulation').length})
+                </button>
+                <button
+                  type="button"
+                  className={`filter-btn ${phaseFilter === 'period' ? 'active' : ''}`}
+                  onClick={() => setPhaseFilter('period')}
+                >
+                  Period ({indicators.filter((i) => i.phase_association === 'period').length})
+                </button>
+              </div>
+
+              <div className="search-input-wrapper">
                 <input
                   type="text"
                   className="indicator-search-input"
-                  placeholder="Type to filter symptoms, foods, moods, clothing, tests..."
+                  placeholder="Type to search signs, foods, moods, tests, physical sensations..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
-
-                <div className="indicator-results-container">
-                  <div className="indicator-results-header">
-                    Showing {filteredIndicators.length} matching indicators (click one to select)
-                  </div>
-                  <ul className="indicator-results-list">
-                    {filteredIndicators.slice(0, 50).map((ind) => (
-                      <li
-                        key={ind.id}
-                        className={`indicator-result-item ${
-                          String(ind.id) === String(selectedIndicatorId) ? 'selected' : ''
-                        }`}
-                        onClick={() => setSelectedIndicatorId(String(ind.id))}
-                      >
-                        <span className="indicator-item-name">{ind.metric_name}</span>
-                        <div className="indicator-item-meta">
-                          <span className={`log-phase-tag log-phase-${ind.phase_association}`}>
-                            {ind.phase_association}
-                          </span>
-                          <span className="indicator-weight-badge">Weight {ind.mathematical_weight}</span>
-                        </div>
-                      </li>
-                    ))}
-                    {filteredIndicators.length === 0 && (
-                      <li className="indicator-result-item">No matching indicators found. Try another search term.</li>
-                    )}
-                    {filteredIndicators.length > 50 && (
-                      <li className="indicator-results-header">
-                        + {filteredIndicators.length - 50} more items. Refine your search above to narrow down.
-                      </li>
-                    )}
-                  </ul>
-                </div>
-
-                {selectedIndicator && (
-                  <div className="indicator-selected-summary">
-                    <div>
-                      <strong>Selected:</strong> {selectedIndicator.metric_name}
-                    </div>
-                    <div>
-                      <span className={`log-phase-tag log-phase-${selectedIndicator.phase_association}`}>
-                        {selectedIndicator.phase_association}
-                      </span>
-                      <span className="indicator-weight-badge">
-                        Calculation Weight: {selectedIndicator.mathematical_weight}
-                      </span>
-                    </div>
-                  </div>
+                {searchTerm && (
+                  <button
+                    type="button"
+                    className="clear-search-btn"
+                    onClick={() => setSearchTerm('')}
+                    title="Clear search"
+                  >
+                    &times;
+                  </button>
                 )}
               </div>
+
+              <div className="indicator-results-container">
+                <div className="indicator-results-header">
+                  {filteredIndicators.length} matches (alphabetically ordered) &middot; click to select
+                </div>
+                <ul className="indicator-results-list">
+                  {filteredIndicators.slice(0, 100).map((ind) => (
+                    <li
+                      key={ind.id}
+                      className={`indicator-result-item ${
+                        String(ind.id) === String(selectedIndicatorId) ? 'selected' : ''
+                      }`}
+                      onClick={() => setSelectedIndicatorId(String(ind.id))}
+                    >
+                      <span className="indicator-item-name">{ind.metric_name}</span>
+                      <div className="indicator-item-meta">
+                        <span className={`log-phase-tag log-phase-${ind.phase_association}`}>
+                          {ind.phase_association}
+                        </span>
+                        <span className="indicator-weight-badge">Weight {ind.mathematical_weight}</span>
+                      </div>
+                    </li>
+                  ))}
+                  {filteredIndicators.length === 0 && (
+                    <li className="indicator-result-empty">
+                      No matching signs found. Click "+ Add New Custom Sign" above to create it!
+                    </li>
+                  )}
+                  {filteredIndicators.length > 100 && (
+                    <li className="indicator-results-header">
+                      + {filteredIndicators.length - 100} more items. Type more letters to narrow down.
+                    </li>
+                  )}
+                </ul>
+              </div>
+
+              {selectedIndicator && (
+                <div className="indicator-selected-summary">
+                  <div>
+                    <strong>Selected Sign:</strong> {selectedIndicator.metric_name}
+                  </div>
+                  <div>
+                    <span className={`log-phase-tag log-phase-${selectedIndicator.phase_association}`}>
+                      {selectedIndicator.phase_association}
+                    </span>
+                    <span className="indicator-weight-badge">
+                      Weight: {selectedIndicator.mathematical_weight}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
+          </div>
+          <div className="form-row-grid">
             <div className="form-row">
-              <label>Magnitude</label>
+              <label>Magnitude / Intensity</label>
               <input
                 type="number"
                 min="0.1"
